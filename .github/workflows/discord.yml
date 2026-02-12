@@ -10,10 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord Notification
-        uses: Ilshidur/action-discord@v2
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: |
-            **${{ github.actor }}** pushed to ${{ github.repository }}
-            Commit: ${{ github.sha }}
-            Message: ${{ github.event.head_commit.message }}
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d '{
+                 "content": "**'"${GITHUB_ACTOR}"'** pushed to '"${GITHUB_REPOSITORY}"' (branch: '"${GITHUB_REF#refs/heads/}"')\nCommit: '"${GITHUB_SHA:0:7}"'\nMessage: '"${{ github.event.head_commit.message }}"'"
+               }' \
+               ${{ secrets.DISCORD_WEBHOOK }}

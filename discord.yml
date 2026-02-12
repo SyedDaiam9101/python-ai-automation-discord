@@ -1,19 +1,1 @@
-name: Discord Webhook Push
 
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  notify-discord:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Discord Notification
-        uses: Ilshidur/action-discord@v2
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: |
-            **${{ github.actor }}** pushed to ${{ github.repository }}
-            Commit: ${{ github.sha }}
-            Message: ${{ github.event.head_commit.message }}

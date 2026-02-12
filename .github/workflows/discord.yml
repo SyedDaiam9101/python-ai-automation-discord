@@ -9,10 +9,32 @@ jobs:
   notify-discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord Notification
+      - name: Send Discord Embed Notification
         run: |
           curl -H "Content-Type: application/json" \
                -d '{
-                 "content": "**'"${GITHUB_ACTOR}"'** pushed to '"${GITHUB_REPOSITORY}"' (branch: '"${GITHUB_REF#refs/heads/}"')\nCommit: '"${GITHUB_SHA:0:7}"'\nMessage: '"${{ github.event.head_commit.message }}"'"
+                 "embeds": [
+                   {
+                     "title": "📦 New Commit Pushed!",
+                     "description": "**'"${GITHUB_ACTOR}"'** pushed to repository **'"${GITHUB_REPOSITORY}"'** (branch: '"${GITHUB_REF#refs/heads/}"')",
+                     "color": 65280,
+                     "fields": [
+                       {
+                         "name": "Commit",
+                         "value": "'"${GITHUB_SHA:0:7}"'",
+                         "inline": true
+                       },
+                       {
+                         "name": "Message",
+                         "value": "'"${{ github.event.head_commit.message }}"'",
+                         "inline": true
+                       }
+                     ],
+                     "footer": {
+                       "text": "Python AI Automation Lab | Discord Updates"
+                     },
+                     "timestamp": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"
+                   }
+                 ]
                }' \
                ${{ secrets.DISCORD_WEBHOOK }}

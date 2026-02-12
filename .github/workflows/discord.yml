@@ -1,31 +1,40 @@
-name: Discord GitHub Feed
+name: Discord Webhook Push
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    types: [opened, closed, merged]
-  issues:
-    types: [opened, closed]
-  workflow_run:
-    types: [completed]
+    branches:
+      - main
 
 jobs:
-  discord-notify:
+  notify-discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord Notification
+      - name: Send Discord Embed Notification
         run: |
-          if [ "${GITHUB_EVENT_NAME}" == "push" ]; then
-            MESSAGE="📦 **${GITHUB_ACTOR}** pushed ${GITHUB_REF#refs/heads/} in ${GITHUB_REPOSITORY}\nCommit: ${GITHUB_SHA:0:7}\nMessage: ${{ github.event.head_commit.message }}"
-          elif [ "${GITHUB_EVENT_NAME}" == "pull_request" ]; then
-            MESSAGE="🔀 **${GITHUB_ACTOR}** ${{ github.event.action }} a PR: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}"
-          elif [ "${GITHUB_EVENT_NAME}" == "issues" ]; then
-            MESSAGE="🐛 **${GITHUB_ACTOR}** ${{ github.event.action }} an issue: #${{ github.event.issue.number }} - ${{ github.event.issue.title }}"
-          elif [ "${GITHUB_EVENT_NAME}" == "workflow_run" ]; then
-            MESSAGE="⚡ Workflow ${{ github.event.workflow_run.name }} ${{ github.event.workflow_run.conclusion }} on branch ${{ github.event.workflow_run.head_branch }}"
-          fi
-
           curl -H "Content-Type: application/json" \
-               -d "{\"content\": \"$MESSAGE\"}" \
+               -d '{
+                 "embeds": [
+                   {
+                     "title": "📦 New Commit Pushed!",
+                     "description": "**'"${GITHUB_ACTOR}"'** pushed to repository **'"${GITHUB_REPOSITORY}"'** (branch: '"${GITHUB_REF#refs/heads/}"')",
+                     "color": 65280,
+                     "fields": [
+                       {
+                         "name": "Commit",
+                         "value": "'"${GITHUB_SHA:0:7}"'",
+                         "inline": true
+                       },
+                       {
+                         "name": "Message",
+                         "value": "'"${{ github.event.head_commit.message }}"'",
+                         "inline": true
+                       }
+                     ],
+                     "footer": {
+                       "text": "Python AI Automation Lab | Discord Updates"
+                     },
+                     "timestamp": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"
+                   }
+                 ]
+               }' \
                ${{ secrets.DISCORD_WEBHOOK }}

@@ -1,0 +1,7 @@
+# Core Dependencies
+openai>=1.0.0              # AI chatbot (optional - has local fallback)
+python-dotenv>=1.0.0       # Environment variable management
+colorama>=0.4.6            # Colored terminal output
+
+# Note: pathlib, smtplib, and typing are built into Python 3.8+
+# No need to install them separately!
